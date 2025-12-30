@@ -1,20 +1,23 @@
 import CustomButton from "@/components/CustomButton";
 import CustomInput from "@/components/CustomInput";
+import { signIn } from "@/lib/appwrite";
 import { Link, router } from "expo-router";
 import React, { useState } from "react";
 import { Alert, Text, View } from "react-native";
 
 const SignIn = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [form, setForm] = useState({ email: "", password: "" });
+  const [formData, setFormData] = useState({ email: "", password: "" });
 
   const onSubmit = async () => {
-    if (!form.email || form.password)
-      Alert.alert("Error", "Invalid email or password");
+    const { email, password } = formData;
+    if (!email || !password) {
+      return Alert.alert("Error", "Invalid email or password");
+    }
     setIsSubmitting(true);
 
     try {
-      Alert.alert("Success", "User sign in successfull");
+      await signIn({ email, password });
       router.replace("/");
     } catch (error: any) {
       Alert.alert("Error", error.message);
@@ -28,17 +31,19 @@ const SignIn = () => {
         label="Email"
         placeholder="Example : user@example.com"
         keyboardType="email-address"
-        onChangeText={(text) => setForm((prev) => ({ ...prev, email: text }))}
-        value={form.email}
+        onChangeText={(text) =>
+          setFormData((prev) => ({ ...prev, email: text }))
+        }
+        value={formData.email}
       />
       <CustomInput
         label="Password"
         placeholder="Type your password"
         secureTextEntry={true}
         onChangeText={(text) =>
-          setForm((prev) => ({ ...prev, password: text }))
+          setFormData((prev) => ({ ...prev, password: text }))
         }
-        value={form.password}
+        value={formData.password}
       />
       <CustomButton
         title="Sing In"

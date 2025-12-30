@@ -1,23 +1,31 @@
 import CustomButton from "@/components/CustomButton";
 import CustomInput from "@/components/CustomInput";
+import { creatUser } from "@/lib/appwrite";
 import { Link, router } from "expo-router";
 import React, { useState } from "react";
 import { Alert, Text, View } from "react-native";
 
 const SignUp = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [form, setForm] = useState({ name: "", email: "", password: "" });
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    password: "",
+  });
 
   const onSubmit = async () => {
-    if (!form.email || !form.email || form.password)
-      Alert.alert("Error", "Invalid name,email or password");
+    const { email, password, name } = formData;
+
+    if (!name || !email || !password) {
+      return Alert.alert("Error", "Invalid name,email or password");
+    }
     setIsSubmitting(true);
 
     try {
-      Alert.alert("Success", "User sign up successfull");
+      await creatUser({ email, password, name });
       router.replace("/");
     } catch (error: any) {
-      Alert.alert("Error", error.message);
+      return Alert.alert("Error", error.message);
     } finally {
       setIsSubmitting(false);
     }
@@ -27,24 +35,28 @@ const SignUp = () => {
       <CustomInput
         label="Full Name"
         placeholder="Example : Jone Doye"
-        onChangeText={(text) => setForm((prev) => ({ ...prev, name: text }))}
-        value={form.name}
+        onChangeText={(text) =>
+          setFormData((prev) => ({ ...prev, name: text }))
+        }
+        value={formData.name}
       />
       <CustomInput
         label="Email"
         placeholder="Example : user@example.com"
         keyboardType="email-address"
-        onChangeText={(text) => setForm((prev) => ({ ...prev, email: text }))}
-        value={form.email}
+        onChangeText={(text) =>
+          setFormData((prev) => ({ ...prev, email: text }))
+        }
+        value={formData.email}
       />
       <CustomInput
         label="Password"
         placeholder="Type your password"
         secureTextEntry={true}
         onChangeText={(text) =>
-          setForm((prev) => ({ ...prev, password: text }))
+          setFormData((prev) => ({ ...prev, password: text }))
         }
-        value={form.password}
+        value={formData.password}
       />
       <CustomButton
         title="Sing up"
